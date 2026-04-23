@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чистый ToDo: Архитектура</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <main class="todo-container">
+        <h1>Список задач</h1>
+        
+        <div class="input-section">
+            <input type="text" id="new-task-input" placeholder="Введите новую задачу...">
+            <button id="add-task-button">Добавить</button>
+        </div>
+        
+        <ul id="task-list">
+            <!-- Задачи будут добавляться сюда -->
+        </ul>
+
+        <!-- 4. (Опционально) Блок для счетчика и фильтров -->
+        <div class="footer-section">
+            <p id="tasks-counter">Осталось задач: 0</p>
+            <div class="filters">
+                <button data-filter="all">Все</button>
+                <button data-filter="active">Активные</button>
+                <button data-filter="completed">Выполнено</button>
+            </div>
+        </div>
+    </main>
+    
+</body>
+</html>
