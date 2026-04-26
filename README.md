@@ -42,4 +42,4 @@
 
 ## 📷 Скриншот
 
-![Demo](Анимация ToDo List2.gif)
+![Demo](./Анимация ToDo List2.gif)
