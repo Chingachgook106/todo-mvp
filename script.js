@@ -38,6 +38,19 @@ function deleteTask(id) {
     saveTasks(tasks);
 }
 
+function updateTask(id, newText) {
+    const task = tasks.find(t => t.id === id);
+    if (task && newText.trim() !== '') {
+        task.text = newText.trim();
+        saveTasks(tasks);
+    }
+}
+
+function clearCompleted() {
+    tasks = tasks.filter(t => !t.completed);
+    saveTasks(tasks);
+}
+
 function getFilteredTasks() {
     if (currentFilter === 'active') {
         return tasks.filter(t => !t.completed);
@@ -59,29 +72,35 @@ function render() {
     // Очистка списка
     taskListElement.innerHTML = '';
 
-    // Отрисовка задач
-    filteredTasks.forEach(task => {
-        const li = document.createElement('li');
-        li.className = task.completed ? 'completed' : '';
-        // КРИТИЧНО: Привязываем ID задачи к элементу, чтобы потом найти его при клике
-        li.dataset.taskId = task.id;
+    if (filteredTasks.length === 0) {
+        const message = document.createElement('div');
+        message.className = 'empty-message';
+        message.textContent = tasks.length === 0 ? 'Список пуст. Добавьте первую задачу!' : 'Нет задач в этой категории';
+        taskListElement.appendChild(message);
+    } else {
+        // Отрисовка задач
+        filteredTasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = task.completed ? 'completed' : '';
+            li.dataset.taskId = task.id;
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'task-checkbox';
-        checkbox.checked = task.completed;
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'task-checkbox';
+            checkbox.checked = task.completed;
 
-        const span = document.createElement('span');
-        span.className = 'task-text';
-        span.textContent = task.text;
+            const span = document.createElement('span');
+            span.className = 'task-text';
+            span.textContent = task.text;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'delete-btn';
-        deleteBtn.textContent = 'Удалить';
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.textContent = 'Удалить';
 
-        li.append(checkbox, span, deleteBtn);
-        taskListElement.appendChild(li);
-    });
+            li.append(checkbox, span, deleteBtn);
+            taskListElement.appendChild(li);
+        });
+    }
 
     // Обновление счетчика
     const activeCount = tasks.filter(t => !t.completed).length;
@@ -92,7 +111,14 @@ function render() {
 // == 4. CONTROLLER (Связующий слой) ==
 const addTaskInput = document.querySelector('#new-task-input');
 const addTaskButton = document.querySelector('#add-task-button');
+const clearCompletedButton = document.querySelector('#clear-completed');
 const filterButtons = document.querySelectorAll('.filter-btn');
+
+// Очистка выполненных
+clearCompletedButton.addEventListener('click', () => {
+    clearCompleted();
+    render();
+});
 
 // Добавление через кнопку
 addTaskButton.addEventListener('click', () => {
@@ -111,10 +137,9 @@ addTaskInput.addEventListener('keypress', (e) => {
     }
 });
 
-// Делегирование событий для списка (клик по чекбоксу или кнопке)
+// Делегирование событий для списка
 taskListElement.addEventListener('click', (event) => {
     const target = event.target;
-    // Ищем ближайший li, который содержит наш dataset.taskId
     const listItem = target.closest('li');
     if (!listItem) return;
 
@@ -126,6 +151,26 @@ taskListElement.addEventListener('click', (event) => {
     } else if (target.classList.contains('delete-btn')) {
         deleteTask(id);
         render();
+    } else if (target.classList.contains('task-text')) {
+        // РЕДАКТИРОВАНИЕ
+        const currentText = target.textContent;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'edit-input';
+        input.value = currentText;
+
+        target.replaceWith(input);
+        input.focus();
+
+        const saveEdit = () => {
+            updateTask(id, input.value);
+            render();
+        };
+
+        input.addEventListener('blur', saveEdit);
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') saveEdit();
+        });
     }
 });
 
